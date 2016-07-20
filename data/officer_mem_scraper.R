@@ -1,13 +1,16 @@
-## Get URL for each officer on one search page
+## Get URL for each officer
 
-search.page <- read_html('https://www.odmp.org/search?name=&agency=&state=&from=2013&to=2016&cause=&filter=nok9')
+href <- c()
 
-nodes <- html_nodes(search.page, '#secondary-layout-one-column-body td+ td a')
-
-href <- nodes %>% 
-        html_attr('href') %>%
-
-
+for (i in seq(0,450,25)) { 
+  
+tmp <- paste0('https://www.odmp.org/search?from=2013&to=2016&filter=nok9&o=',i) %>%
+       read_html() %>%
+       html_nodes('#secondary-layout-one-column-body td+ td a') %>%
+       html_attr('href')
+  
+href <- c(href, tmp)
+}
 
 ## Get "Bio & Incident Details" from officer memorial page ##
 all_bio <- list()
@@ -33,5 +36,3 @@ repeat {
      } 
     all_bio[k] <-list(bio)
     }
-
-all_bio 
