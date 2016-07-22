@@ -1,3 +1,5 @@
+library(stringr)
+
 ## Get URL for each officer
 
 href <- c()
@@ -13,12 +15,19 @@ href <- c(href, tmp)
 }
 
 ## Get "Bio & Incident Details" from officer memorial page ##
+
+# Function to split memorial section and return a single element of choice
+memsplit <- function(x) {
+  strsplit(odmp %>% html_node('#memorial_featuredInfo_right') %>% html_text(), "\n\t\t\t\t\t\t")[[1]][x]
+}
+
 all_bio <- list()
 for (k in 1:length(href)) {
 odmp <- read_html(href[k])
-bio <- list(rank = odmp %>% html_node('h4') %>% html_text(), 
-            name = odmp %>% html_node('h3') %>% html_text(),       
-            memorial = odmp %>% html_node('#memorial_featuredInfo_right') %>% html_text())
+bio <- data.frame(rank = memsplit(2), 
+         name = memsplit(3),       
+         department = memsplit(4),
+         death.date = str_trim(strsplit(strsplit(memsplit(5), '\t\t\t\t\t')[[1]][1],':')[[1]][2]), stringsAsFactors = FALSE)
 
 i = 0 
 j = length(bio) + 1
@@ -29,10 +38,12 @@ repeat {
       if (is.na(html_text(node))) {break}
       varPair <- strsplit(html_text(node),":")
       if (!is.na(varPair[[1]][2])) {
-       bio[j] <- varPair[[1]][2]
+       bio[j] <- str_trim(varPair[[1]][2])
        names(bio)[j] <- varPair[[1]][1]
-       j = j + 1
+       j = j + 1 
       }
      } 
-    all_bio[k] <-list(bio)
+    all_bio[k] <- list(bio)
     }
+
+leo.df <- Reduce(function(...) merge(..., all=TRUE), all_bio)
