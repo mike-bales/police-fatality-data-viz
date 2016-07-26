@@ -1,4 +1,5 @@
 library(stringr)
+library(rvest)
 
 ## Get URL for each officer
 
@@ -47,3 +48,9 @@ repeat {
     }
 
 leo.df <- Reduce(function(...) merge(..., all=TRUE), all_bio)
+
+#format date
+leo.df$death.date <- as.Date(leo.df$death.date, format = "%A, %B %d, %Y")
+
+#create civilian or LEO status
+leo.df$status <- "leo"
