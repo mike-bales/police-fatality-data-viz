@@ -1,4 +1,7 @@
 var data;
+var margin = { top: 15, right: 15, bottom: 40, left: 60 };
+var width = 840 - margin.left - margin.right;
+var height = 600 - margin.top - margin.bottom;
 
 // Declaring our constants
 
@@ -11,6 +14,41 @@ d3.queue()
   .awaitAll(function (error, results) {
     if (error) { throw error; }
     data = results[0];
+
+    var chart = new Chart();
   });
 
 
+function Chart() {
+    var chart = this;
+
+    // SVG
+
+    chart.svg = d3.select('#chart')
+      .append('svg')
+      .attr("width", width + margin.right + margin.left)
+      .attr("height", height + margin.top + margin.bottom)
+      .style("background", "lightgrey")
+      .append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    // SCALES
+
+    chart.x = d3.scaleTime()
+          .domain([new Date(2013, 0, 1), new Date(2016, 0, 1)])
+          .range([0, width])
+          .nice();
+
+
+    // AXES
+
+    var xAxis = d3.axisBottom()
+                  .scale(chart.x);
+
+
+    chart.svg.append("g")
+       .attr("class", "axis") 
+       .attr("transform", "translate(0," + (height) + ")")
+       .call(xAxis);
+
+  }
