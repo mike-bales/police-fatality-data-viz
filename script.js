@@ -1,11 +1,14 @@
-var data;
-var margin = { top: 15, right: 15, bottom: 40, left: 60 };
-var width = 6000 - margin.left - margin.right;
-var height = 300 - margin.top - margin.bottom;
+var data,
+    margin = { top: 15, right: 15, bottom: 40, left: 15 },
+    width = 1460 - margin.left - margin.right,
+    height = 100 - margin.top - margin.bottom,
+    cellSize = 3;
 
 //DATE PARSER
 
-var dateParser = d3.timeParse("%Y-%m-%d");
+var dateParser = d3.timeParse("%Y-%m-%d"),
+    yearFormat = d3.timeFormat("%Y");
+
 
 // Declaring our constants
 
@@ -19,12 +22,21 @@ d3.queue()
     if (error) { throw error; }
     data = results[0];
 
-    var chart = new Chart();
+    var chart1 = new Chart(2013),
+        chart2 = new Chart(2014);
   });
 
 
-function Chart() {
+function Chart(year) {
     var chart = this;
+
+    txData = data.slice();
+
+    txData = txData.filter(function (d) {
+        return yearFormat(dateParser(d.deathDate)) === year.toString();
+      }); 
+
+
 
     // SVG
 
@@ -32,14 +44,14 @@ function Chart() {
       .append('svg')
       .attr("width", width + margin.right + margin.left)
       .attr("height", height + margin.top + margin.bottom)
-      .style("background", "lightgrey")
+      //.style("background", "lightgrey")
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
     // SCALES
 
     chart.x = d3.scaleTime()
-          .domain([new Date(2013, 0, 1), new Date(2016, 0, 1)])
+          .domain([new Date(year, 0, 1), new Date(year + 1, 0, 1)])
           .range([0, width])
           .nice();
     
@@ -58,7 +70,7 @@ function Chart() {
 
     var vicsByDate = d3.nest()
                        .key(function(d) { return d.deathDate})
-                       .entries(data);
+                       .entries(txData);
 
     var dateGroup = chart.svg.selectAll("g")
                              .data(vicsByDate)
@@ -69,11 +81,11 @@ function Chart() {
                            .data(function(d) {return d.values; })
                            .enter().append("rect")
                            .attr("x", function(d) { return chart.x(dateParser(d.deathDate))} )
-                           .attr("y", function(d,i) { return -(i*5)-(i+1)})
-                           .attr("height", 5)
-                           .attr("width", 5)
+                           .attr("y", function(d,i) { return -(i*cellSize)-(i+1)})
+                           .attr("rx", .5)
+                           .attr("ry", .5)
+                           .attr("height", cellSize)
+                           .attr("width", cellSize)
                            .attr("class", function(d) { return d.status});
     
-
-
   }
