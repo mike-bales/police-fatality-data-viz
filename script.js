@@ -3,6 +3,10 @@ var margin = { top: 15, right: 15, bottom: 40, left: 60 };
 var width = 840 - margin.left - margin.right;
 var height = 600 - margin.top - margin.bottom;
 
+//DATE FORMATTER
+
+var dateParser = d3.timeParse("%Y-%m-%d");
+
 // Declaring our constants
 
 
@@ -38,8 +42,9 @@ function Chart() {
           .domain([new Date(2013, 0, 1), new Date(2016, 0, 1)])
           .range([0, width])
           .nice();
+    
 
-
+    console.log(dateParser("2017-07-26"))
     // AXES
 
     var xAxis = d3.axisBottom()
@@ -50,5 +55,25 @@ function Chart() {
        .attr("class", "axis") 
        .attr("transform", "translate(0," + (height) + ")")
        .call(xAxis);
+
+    // NEST DATA 
+
+    var vicsByDate = d3.nest()
+                       .key(function(d) { return d.deathDate})
+                       .entries(data);
+
+    var dateGroup = chart.svg.selectAll("g")
+                             .data(vicsByDate)
+                             .enter().append("g");
+
+    var victims = dateGroup.selectAll("rect")
+                           .data(function(d) {return d.values; })
+                           .enter().append("rect")
+                           .attr("x", function(d) { return chart.x(dateParser(d.deathDate))} )
+                           .attr("y", function(d, i) { return (i*5)+1})
+                           .attr("height", 10)
+                           .attr("width", 10);
+    
+
 
   }
