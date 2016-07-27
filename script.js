@@ -1,9 +1,9 @@
 var data;
 var margin = { top: 15, right: 15, bottom: 40, left: 60 };
-var width = 840 - margin.left - margin.right;
-var height = 600 - margin.top - margin.bottom;
+var width = 6000 - margin.left - margin.right;
+var height = 300 - margin.top - margin.bottom;
 
-//DATE FORMATTER
+//DATE PARSER
 
 var dateParser = d3.timeParse("%Y-%m-%d");
 
@@ -43,8 +43,6 @@ function Chart() {
           .range([0, width])
           .nice();
     
-
-    console.log(dateParser("2017-07-26"))
     // AXES
 
     var xAxis = d3.axisBottom()
@@ -64,15 +62,17 @@ function Chart() {
 
     var dateGroup = chart.svg.selectAll("g")
                              .data(vicsByDate)
-                             .enter().append("g");
+                             .enter().append("g")
+                             .attr("transform", "translate(0," + (height - 5) + ")");
 
     var victims = dateGroup.selectAll("rect")
                            .data(function(d) {return d.values; })
                            .enter().append("rect")
                            .attr("x", function(d) { return chart.x(dateParser(d.deathDate))} )
-                           .attr("y", function(d, i) { return (i*5)+1})
-                           .attr("height", 10)
-                           .attr("width", 10);
+                           .attr("y", function(d,i) { return -(i*5)-(i+1)})
+                           .attr("height", 5)
+                           .attr("width", 5)
+                           .attr("class", function(d) { return d.status});
     
 
 
