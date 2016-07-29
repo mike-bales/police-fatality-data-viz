@@ -1,8 +1,8 @@
 var data,
     margin = { top: 15, right: 15, bottom: 40, left: 15 },
-    width = 1460 - margin.left - margin.right,
-    height = 100 - margin.top - margin.bottom,
-    cellSize = 3;
+    cellSize = 3,
+    width = (cellSize*365+365) - margin.left - margin.right,
+    height = 100 - margin.top - margin.bottom;
 
 //DATE PARSER
 
@@ -23,7 +23,8 @@ d3.queue()
     data = results[0];
 
     var chart1 = new Chart(2013),
-        chart2 = new Chart(2014);
+        chart2 = new Chart(2014),
+        chart3 = new Chart(2015);
   });
 
 
@@ -98,12 +99,14 @@ function Chart(year) {
                            .attr("width", cellSize)
                            .attr("class", function(d) { return d.status})
                            .on("mouseover", function(d) {    
-                                       div.transition()    
-                                          .duration(200)    
-                                          .style("opacity", .9);    
-                                       div.html(d.deathDate)  
-                                          .style("left", (d3.event.pageX) + "px")   
-                                          .style("top", (d3.event.pageY - 28) + "px");  
+                                       d3.select("#vic-name")
+                                         .html(d.name);
+
+                                       d3.select("#vic-age")
+                                         .html(d.age);
+
+                                       d3.select("#vic-cause")
+                                         .html(d.cause);
                                       })          
                             .on("mouseout", function(d) {   
                                 div.transition()    

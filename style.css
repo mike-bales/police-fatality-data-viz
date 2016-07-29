@@ -21,6 +21,14 @@
 	fill: red;
 }
 
+#vic-name, #vic-age, #vic-cause {
+	margin: 0px 0px 0px 12px;
+}
+
+#vic-name {
+	font-size: 25px;
+}
+
 div.tooltip {	
     position: absolute;			
     text-align: center;			
