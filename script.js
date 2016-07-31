@@ -1,5 +1,5 @@
 var data,
-    margin = { top: 15, right: 15, bottom: 30, left: 15 },
+    margin = { top: 30, right: 15, bottom: 30, left: 15 },
     cellSize = 3,
     width = (cellSize*365+365) - margin.left - margin.right,
     height = 85 - margin.top - margin.bottom
@@ -48,8 +48,8 @@ function Chart() {
                   .append('g')
                   .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-console.log (years.length);
-  for (var i = 0; i = 0; i++) {
+
+  for (var i = 0; i < 3; i++) {
 
     txData = data.slice();
 
@@ -64,6 +64,7 @@ console.log (years.length);
                 .range([0, width])
                 .nice();
     
+
     // AXES
 
     var xAxis = d3.axisBottom()
@@ -71,7 +72,7 @@ console.log (years.length);
 
     chart.svg.append("g")
              .attr("class", "axis") 
-             .attr("transform", "translate(0," + (height * (i+2)) + ")")
+             .attr("transform", "translate(0," + ((height+margin.top) * (i+2)) + ")")
              .call(xAxis);
 
     // NEST DATA 
@@ -80,15 +81,16 @@ console.log (years.length);
                        .key(function(d) { return d.deathDate})
                        .entries(txData);
 
+
+
     var dateGroup = chart.svg.selectAll(".day")
-                             .data(vicsByDate)
+                             .data(vicsByDate, function (d) {return d.deathDate})
                              .enter().append("g")
-                             .attr("transform", "translate(0," + ((height * (i+2)) - cellSize) + ")")
+                             .attr("transform", "translate(0," + (((height+margin.top) * (i+2)) - cellSize) + ")")
                              .attr("class", "day");
 
-    //var victims = 
-    dateGroup.selectAll(".victim")
-                           .data(function(d) {return d.values; })
+    var victims = dateGroup.selectAll(".victim")
+                           .data(function(d) {return d.values; }, function(d) { return d.name })
                            .enter().append("rect")
                            .attr("class", "victim")
                            .attr("x", function(d) { return x(dateParser(d.deathDate))} )
@@ -99,10 +101,21 @@ console.log (years.length);
                            .attr("width", cellSize)
                            .attr("class", function(d) { return d.status})
                            .on("mouseover", function(d) {    
-                                           
+                                       d3.select("#vic-name")
+                                         .html(d.name);
+
+                                       d3.select("#vic-age")
+                                         .html(d.age);
+
+                                       d3.select("#vic-cause")
+                                         .html(d.cause);
+
+                                       d3.select("#vic-date")
+                                         .html(d.deathDate);  
                                       })          
                            .on("mouseout", function(d) {   
                                
                                      }); 
+                           console.log(victims);
   };                            
 }
