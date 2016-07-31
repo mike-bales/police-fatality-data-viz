@@ -81,12 +81,15 @@ function Chart(year) {
                        .key(function(d) { return d.deathDate})
                        .entries(txData);
 
+console.log(vicsByDate);
     var dateGroup = chart.svg.selectAll(".day")
                              .data(vicsByDate)
                              .enter().append("g")
-                             .attr("transform", "translate(0," + (height - 5) + ")")
+                             .attr("transform", "translate(0," + (height - 3) + ")")
                              .attr("class", "day");
 
+
+console.log(dateGroup);
     var victims = dateGroup.selectAll(".victim")
                            .data(function(d) {return d.values; })
                            .enter().append("rect")
