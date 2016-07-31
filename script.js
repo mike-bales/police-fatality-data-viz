@@ -80,14 +80,14 @@ function Chart() {
     var vicsByDate = d3.nest()
                        .key(function(d) { return d.deathDate})
                        .entries(txData);
-
-
+console.log(vicsByDate);
 
     var dateGroup = chart.svg.selectAll(".day")
                              .data(vicsByDate, function (d) {return d.deathDate})
                              .enter().append("g")
                              .attr("transform", "translate(0," + (((height+margin.top) * (i+2)) - cellSize) + ")")
                              .attr("class", "day");
+console.log(dateGroup);
 
     var victims = dateGroup.selectAll(".victim")
                            .data(function(d) {return d.values; }, function(d) { return d.name })
@@ -116,6 +116,6 @@ function Chart() {
                            .on("mouseout", function(d) {   
                                
                                      }); 
-                           console.log(victims);
+                           
   };                            
 }
