@@ -78,20 +78,24 @@ function Chart() {
     // NEST DATA 
 
     var vicsByDate = d3.nest()
-                       .key(function(d) { return d.deathDate})
+                       .key(function(d) { return d.deathDate;})
                        .entries(txData);
-console.log(vicsByDate);
+
 
     var dateGroup = chart.svg.selectAll(".day")
-                             .data(vicsByDate, function (d) {return d.deathDate})
-                             .enter().append("g")
+                             .data(vicsByDate, function (d) { return d.deathDate;});
+
+                             dateG = dateGroup.enter().append("g")
                              .attr("transform", "translate(0," + (((height+margin.top) * (i+2)) - cellSize) + ")")
                              .attr("class", "day");
 console.log(dateGroup);
 
-    var victims = dateGroup.selectAll(".victim")
-                           .data(function(d) {return d.values; }, function(d) { return d.name })
-                           .enter().append("rect")
+
+
+    var victims = dateG.selectAll(".victim")
+                           .data(function(d) {return d.values; }, function(d) { return d.name });
+
+                           victims.enter().append("rect")
                            .attr("class", "victim")
                            .attr("x", function(d) { return x(dateParser(d.deathDate))} )
                            .attr("y", function(d,i) { return -(i*cellSize)-(i+1)})
@@ -115,7 +119,7 @@ console.log(dateGroup);
                                       })          
                            .on("mouseout", function(d) {   
                                
-                                     }); 
+                                     })
                            
   };                            
 }
