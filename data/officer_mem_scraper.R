@@ -28,7 +28,11 @@ odmp <- read_html(href[k])
 bio <- data.frame(rank = memsplit(2), 
          name = memsplit(3),       
          department = memsplit(4),
-         death.date = str_trim(strsplit(strsplit(memsplit(5), '\t\t\t\t\t')[[1]][1],':')[[1]][2]), stringsAsFactors = FALSE)
+         death.date = str_trim(strsplit(strsplit(memsplit(5), '\t\t\t\t\t')[[1]][1],':')[[1]][2]),
+         summary = strsplit((odmp %>% html_node('#memorial_featuredBody_right p:nth-child(1)') %>% html_text()),'\n')[[1]][1],
+         stringsAsFactors = FALSE
+         )
+         
 
 i = 0 
 j = length(bio) + 1

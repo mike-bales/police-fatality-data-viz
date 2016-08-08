@@ -1,5 +1,5 @@
 var data,
-    margin = { top: 30, right: 15, bottom: 30, left: 15 },
+    margin = { top: 10, right: 15, bottom: 30, left: 15 },
     cellSize = 3,
     width = (cellSize*365+365) - margin.left - margin.right,
     height = 85 - margin.top - margin.bottom
@@ -49,7 +49,9 @@ function Chart() {
                   .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
 
-  for (var i = 0; i < 3; i++) {
+  for (var i = 0; i < years.length; i++) {
+
+    // FILTER DATA BY YEAR
 
     txData = data.slice();
 
@@ -63,16 +65,20 @@ function Chart() {
                 .domain([new Date(years[i], 0, 1), new Date(years[i] + 1, 0, 1)])
                 .range([0, width])
                 .nice();
-    
 
+    // CREATE YEAR GROUP FOR EACH CHART AND SET POSITION
+
+    yearGroup = chart.svg.append("g")
+     .attr("id", years[i])
+     .attr("transform", "translate(0," + ((height+(margin.top*2)) * (i+2)) + ")")
+console.log(height, margin.top, (height+margin.top) * (i+2))
     // AXES
 
     var xAxis = d3.axisBottom()
                   .scale(x);
 
-    chart.svg.append("g")
+    yearGroup.append("g")
              .attr("class", "axis") 
-             .attr("transform", "translate(0," + ((height+margin.top) * (i+2)) + ")")
              .call(xAxis);
 
     // NEST DATA 
@@ -81,18 +87,18 @@ function Chart() {
                        .key(function(d) { return d.deathDate;})
                        .entries(txData);
 
+    // CREATE GROUP FOR EACH DAY
 
-    var dateGroup = chart.svg.selectAll(".day")
-                             .data(vicsByDate, function (d) { return d.deathDate;});
+    var dateGroup = yearGroup
+                     .selectAll(".day")
+                     .data(vicsByDate, function (d) { return d.deathDate;})
+                     .enter().append("g")
+                     .attr("class", "day")
+                     .attr("transform","translate(0," + (-cellSize) + ")");
+console.log(dateGroup)
+    // CREATE RECTS FOR VICTIM WITHIN EACH DAY
 
-                             dateG = dateGroup.enter().append("g")
-                             .attr("transform", "translate(0," + (((height+margin.top) * (i+2)) - cellSize) + ")")
-                             .attr("class", "day");
-console.log(dateGroup);
-
-
-
-    var victims = dateG.selectAll(".victim")
+    var victims = dateGroup.selectAll(".victim")
                            .data(function(d) {return d.values; }, function(d) { return d.name });
 
                            victims.enter().append("rect")
@@ -116,10 +122,24 @@ console.log(dateGroup);
 
                                        d3.select("#vic-date")
                                          .html(d.deathDate);  
+
+                                       vicRect = d3.select(this);
+                                         
+                                         vicRect
+                                         .attr("height", cellSize+4)
+                                         .attr("width", cellSize+4)
+                                         .attr("x", vicRect.attr("x")*1 - 2)
+                                         .attr("y", vicRect.attr("y")*1 - 2); 
                                       })          
                            .on("mouseout", function(d) {   
-                               
-                                     })
+                                  
+                                     d3.select(this)
+                                       
+                                       .attr("height", cellSize)
+                                       .attr("width", cellSize)
+                                       .attr("x", vicRect.attr("x")*1 + 2)
+                                       .attr("y", vicRect.attr("y")*1 + 2);
+                                     });
                            
   };                            
 }
