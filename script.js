@@ -5,6 +5,10 @@ var data,
     height = 85 - margin.top - margin.bottom
     years = [2013, 2014, 2015];
 
+var options = {
+  cause: false
+}
+
 //DATE PARSER
 
 var dateParser = d3.timeParse("%Y-%m-%d"),
@@ -24,8 +28,7 @@ d3.queue()
     data = results[0];
 
     var chart1 = new Chart();
-        //chart2 = new Chart(2014),
-        //chart3 = new Chart(2015);
+    chart1.update();
   });
 
 
@@ -34,22 +37,49 @@ function Chart() {
 
     var chart = this;
 
-    // VICTIM DETAILS DIV
-
-    var div = d3.select(".details")
-                .selectAll("p");
-
-
     // SVG
 
     chart.svg = d3.select('#chart')
                   .append('svg')
                   .attr("width", width + margin.right + margin.left)
                   .attr("height", (height + margin.top + margin.bottom)*4)
-                  .style("background", "lightgrey")
+                  //.style("background", "lightgrey")
                   .append('g')
                   .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
+
+  for (var i = 0; i < years.length; i++) {
+
+    // SCALES
+
+    chart.x = d3.scaleTime()
+                .domain([new Date(years[i], 0, 1), new Date(years[i] + 1, 0, 1)])
+                .range([0, width])
+                .nice();
+
+    // CREATE YEAR GROUP FOR EACH CHART AND SET POSITION
+
+    yearGroup = chart.svg.append("g")
+     .attr("id", "_"+years[i])
+     .attr("transform", "translate(0," + ((height+(margin.top*2)) * (i+1)) + ")")
+
+    // AXES
+
+    var xAxis = d3.axisBottom()
+                  .scale(chart.x);
+
+    yearGroup.append("g")
+             .attr("class", "axis") 
+             .call(xAxis);
+
+    
+                                              
+  };                            
+}
+
+  Chart.prototype.update = function() {
+
+          var chart = this;
 
   for (var i = 0; i < years.length; i++) {
 
@@ -61,29 +91,13 @@ function Chart() {
         return yearFormat(dateParser(d.deathDate)) === years[i].toString();
       }); 
 
-    // SCALES
-
-    x = d3.scaleTime()
-                .domain([new Date(years[i], 0, 1), new Date(years[i] + 1, 0, 1)])
-                .range([0, width])
-                .nice();
-
-    // CREATE YEAR GROUP FOR EACH CHART AND SET POSITION
-
-    yearGroup = chart.svg.append("g")
-     .attr("id", years[i])
-     .attr("transform", "translate(0," + ((height+(margin.top*2)) * (i+2)) + ")")
-
-    // AXES
-
-    var xAxis = d3.axisBottom()
-                  .scale(x);
-
-    yearGroup.append("g")
-             .attr("class", "axis") 
-             .call(xAxis);
-
-    // NEST DATA 
+    if (options.cause) {
+      txData = txData.filter(function (d) {
+        return d.cause == options.cause
+      })
+    }
+  
+// NEST DATA 
 
     var vicsByDate = d3.nest()
                        .key(function(d) { return d.deathDate;})
@@ -91,13 +105,13 @@ function Chart() {
 
     // CREATE GROUP FOR EACH DAY
 
-    var dateGroup = yearGroup
+    var dateGroup = d3.select("#_"+ years[i])
                      .selectAll(".day")
                      .data(vicsByDate, function (d) { return d.deathDate;})
                      .enter().append("g")
                      .attr("class", "day")
                      .attr("transform","translate(0," + (-cellSize) + ")");
- 
+console.log(dateGroup); 
 
     // CREATE RECTS FOR VICTIM WITHIN EACH DAY
 
@@ -107,7 +121,7 @@ function Chart() {
                            victims.enter().append("rect")
                            .attr("class", "victim")
                            .attr("class", function(d) { return d.status})
-                           .attr("x", function(d) { return x(dateParser(d.deathDate))} )
+                           .attr("x", function(d) { return chart.x(dateParser(d.deathDate))} )
                            .attr("y", function(d,i) { return -(i*cellSize)-(i+1)})
                            .attr("height", 0)
                            .attr("width", 0)
@@ -127,6 +141,7 @@ function Chart() {
                                          .html(d.deathDate);  
 
                                        d3.select("#vic-summary")
+                                         .html(d.summary);
 
                                        vicRect = d3.select(this);
                                          
@@ -151,11 +166,12 @@ function Chart() {
                                           d3.select(this)
                                                 .attr("height", cellSize)
                                                 .attr("width", cellSize)
-                                        }
-                                              
-                                )
-;
-                           
-                           
-  };                            
-}
+                                        });
+
+                             victims.exit().remove();           
+
+  };
+
+  };        
+
+
