@@ -47,12 +47,13 @@ function Chart() {
                   .append('g')
                   .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-
+      chart.x = [];
+      
   for (var i = 0; i < years.length; i++) {
 
     // SCALES
 
-    chart.x = d3.scaleTime()
+    chart.x[i] = d3.scaleTime()
                 .domain([new Date(years[i], 0, 1), new Date(years[i] + 1, 0, 1)])
                 .range([0, width])
                 .nice();
@@ -66,7 +67,7 @@ function Chart() {
     // AXES
 
     var xAxis = d3.axisBottom()
-                  .scale(chart.x);
+                  .scale(chart.x[i]);
 
     yearGroup.append("g")
              .attr("class", "axis") 
@@ -82,6 +83,7 @@ function Chart() {
           var chart = this;
 
   for (var i = 0; i < years.length; i++) {
+    console.log(chart.x);
 
     // FILTER DATA BY YEAR
 
@@ -111,17 +113,17 @@ function Chart() {
                      .enter().append("g")
                      .attr("class", "day")
                      .attr("transform","translate(0," + (-cellSize) + ")");
-console.log(dateGroup); 
+
 
     // CREATE RECTS FOR VICTIM WITHIN EACH DAY
 
-    var victims = dateGroup.selectAll(".victim")
+    var victims = dateGroup.selectAll(".victim"+years[i])
                            .data(function(d) {return d.values; }, function(d) { return d.name });
 
                            victims.enter().append("rect")
-                           .attr("class", "victim")
+                           .attr("class", "victim"+years[i])
                            .attr("class", function(d) { return d.status})
-                           .attr("x", function(d) { return chart.x(dateParser(d.deathDate))} )
+                           .attr("x", function(d) { return chart.x[i](dateParser(d.deathDate))} )
                            .attr("y", function(d,i) { return -(i*cellSize)-(i+1)})
                            .attr("height", 0)
                            .attr("width", 0)
@@ -168,7 +170,7 @@ console.log(dateGroup);
                                                 .attr("width", cellSize)
                                         });
 
-                             victims.exit().remove();           
+                             //victims.exit().remove();           
 
   };
 
