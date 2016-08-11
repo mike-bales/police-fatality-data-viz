@@ -42,13 +42,13 @@ function Chart() {
     chart.svg = d3.select('#chart')
                   .append('svg')
                   .attr("width", width + margin.right + margin.left)
-                  .attr("height", (height + margin.top + margin.bottom)*4)
+                  .attr("height", (height + margin.top + margin.bottom)*3)
                   //.style("background", "lightgrey")
                   .append('g')
                   .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
       chart.x = [];
-      
+
   for (var i = 0; i < years.length; i++) {
 
     // SCALES
