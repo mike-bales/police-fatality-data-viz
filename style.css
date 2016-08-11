@@ -11,6 +11,7 @@
 #chart svg {
   display: block;
   margin: 0 auto;
+  padding: 0;
 }
 
 .leo {
