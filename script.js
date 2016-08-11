@@ -71,7 +71,7 @@ function Chart() {
     yearGroup = chart.svg.append("g")
      .attr("id", years[i])
      .attr("transform", "translate(0," + ((height+(margin.top*2)) * (i+2)) + ")")
-console.log(height, margin.top, (height+margin.top) * (i+2))
+
     // AXES
 
     var xAxis = d3.axisBottom()
@@ -95,21 +95,22 @@ console.log(height, margin.top, (height+margin.top) * (i+2))
                      .enter().append("g")
                      .attr("class", "day")
                      .attr("transform","translate(0," + (-cellSize) + ")");
-console.log(dateGroup)
+ 
+
     // CREATE RECTS FOR VICTIM WITHIN EACH DAY
 
     var victims = dateGroup.selectAll(".victim")
                            .data(function(d) {return d.values; }, function(d) { return d.name });
-
+console.log(victims)
                            victims.enter().append("rect")
                            .attr("class", "victim")
+                           .attr("class", function(d) { return d.status})
                            .attr("x", function(d) { return x(dateParser(d.deathDate))} )
                            .attr("y", function(d,i) { return -(i*cellSize)-(i+1)})
+                           .attr("height", 0)
+                           .attr("width", 0)
                            .attr("rx", .5)
                            .attr("ry", .5)
-                           .attr("height", cellSize)
-                           .attr("width", cellSize)
-                           .attr("class", function(d) { return d.status})
                            .on("mouseover", function(d) {    
                                        d3.select("#vic-name")
                                          .html(d.name);
@@ -139,7 +140,18 @@ console.log(dateGroup)
                                        .attr("width", cellSize)
                                        .attr("x", vicRect.attr("x")*1 + 2)
                                        .attr("y", vicRect.attr("y")*1 + 2);
-                                     });
+                                     })
+                           .transition().duration(1500)
+                                        .delay( function (d, i) { return i*500 })
+                                        .each( function(){
+                                          d3.select(this)
+                                                .attr("height", cellSize)
+                                                .attr("width", cellSize)
+                                        }
+                                              
+                                )
+;
+                           
                            
   };                            
 }
