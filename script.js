@@ -29,7 +29,70 @@ d3.queue()
 
     var chart1 = new Chart();
     chart1.update();
-  });
+
+    d3.select('#filter-all-label')
+      .classed('active', true);
+
+    d3.select('#filter-all')
+      .on('click', function() {
+
+        if (options.cause != false) {
+          
+          options.cause = false;
+
+          d3.select('#filter-all-label')
+            .classed('active', true);
+
+          d3.select('#filter-gun-label')
+            .classed('active', false);
+
+          d3.select('#filter-other-label')
+            .classed('active', false);  
+
+          chart1.update();              
+        }
+    });    
+
+    d3.select('#filter-gun')
+      .on('click', function() {
+
+        if (options.cause != "Gun") {
+          
+          options.cause = "Gun";
+
+          d3.select('#filter-all-label')
+            .classed('active', false);
+
+          d3.select('#filter-gun-label')
+            .classed('active', true);
+
+          d3.select('#filter-other-label')
+            .classed('active', false);   
+
+          chart1.update();              
+        }
+     });   
+
+    d3.select('#filter-other')
+      .on('click', function() {
+
+        if (options.cause != "Other") {
+          
+          options.cause = "Other";
+
+          d3.select('#filter-all-label')
+            .classed('active', false);
+
+          d3.select('#filter-gun-label')
+            .classed('active', false);
+
+          d3.select('#filter-other-label')
+            .classed('active', true);   
+
+          chart1.update();              
+        }                
+      })
+    });
 
 
 function Chart() {
@@ -47,7 +110,7 @@ function Chart() {
                   .append('g')
                   .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-      chart.x = [];
+    chart.x = [];
 
   for (var i = 0; i < years.length; i++) {
 
@@ -72,38 +135,37 @@ function Chart() {
     yearGroup.append("g")
              .attr("class", "axis") 
              .call(xAxis);
-
-    
                                               
   };                            
 }
 
-  Chart.prototype.update = function() {
+Chart.prototype.update = function() {
 
-          var chart = this;
+  var chart = this;
 
   for (var i = 0; i < years.length; i++) {
-    console.log(chart.x);
 
     // FILTER DATA BY YEAR
 
     txData = data.slice();
-
+ 
     txData = txData.filter(function (d) {
         return yearFormat(dateParser(d.deathDate)) === years[i].toString();
       }); 
 
     if (options.cause) {
       txData = txData.filter(function (d) {
-        return d.cause == options.cause
-      })
-    }
+        return d.cause === options.cause;
+      });           
+    };
+ 
   
-// NEST DATA 
+   // NEST DATA 
 
     var vicsByDate = d3.nest()
                        .key(function(d) { return d.deathDate;})
                        .entries(txData);
+                       
 
     // CREATE GROUP FOR EACH DAY
 
@@ -170,7 +232,7 @@ function Chart() {
                                                 .attr("width", cellSize)
                                         });
 
-                             //victims.exit().remove();           
+                             victims.exit().remove();           
 
   };
 
