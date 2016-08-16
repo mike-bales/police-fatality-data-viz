@@ -2,7 +2,7 @@ var data,
     margin = { top: 10, right: 15, bottom: 30, left: 15 },
     cellSize = 3,
     width = (cellSize*365+365) - margin.left - margin.right,
-    height = 85 - margin.top - margin.bottom
+    height = 70 - margin.top - margin.bottom
     years = [2013, 2014, 2015];
 
 var options = {
@@ -167,6 +167,13 @@ Chart.prototype.update = function() {
                        .entries(txData);
                        
 
+    // CLEAR DAY GROUPS SO THERE IS BLANK SLATE FOR UPDATED DATA. .exit().remove() DOES NOT WORK. 
+    // POSSIBLE IMPROVEMENT BY GETTING .exit().remove() TO WORK
+
+    d3.select("#_"+ years[i])
+      .selectAll('.day')
+      .remove();
+
     // CREATE GROUP FOR EACH DAY
 
     var dateGroup = d3.select("#_"+ years[i])
@@ -176,15 +183,14 @@ Chart.prototype.update = function() {
                      .attr("class", "day")
                      .attr("transform","translate(0," + (-cellSize) + ")");
 
-
+    
     // CREATE RECTS FOR VICTIM WITHIN EACH DAY
 
     var victims = dateGroup.selectAll(".victim"+years[i])
                            .data(function(d) {return d.values; }, function(d) { return d.name });
 
                            victims.enter().append("rect")
-                           .attr("class", "victim"+years[i])
-                           .attr("class", function(d) { return d.status})
+                           .attr("class", function(d) { return "victim"+years[i]+" "+d.status})
                            .attr("x", function(d) { return chart.x[i](dateParser(d.deathDate))} )
                            .attr("y", function(d,i) { return -(i*cellSize)-(i+1)})
                            .attr("height", 0)
@@ -230,10 +236,7 @@ Chart.prototype.update = function() {
                                           d3.select(this)
                                                 .attr("height", cellSize)
                                                 .attr("width", cellSize)
-                                        });
-
-                             victims.exit().remove();           
-
+                                        });           
   };
 
   };        
