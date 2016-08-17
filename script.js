@@ -3,7 +3,10 @@ var data,
     cellSize = 3,
     width = (cellSize*365+365) - margin.left - margin.right,
     height = 70 - margin.top - margin.bottom
-    years = [2013, 2014, 2015];
+    years = [2013, 2014, 2015],
+    pieWidth = 200,
+    pieHeight = 200
+    radius = Math.min(pieWidth, pieHeight) / 2;
 
 var options = {
   cause: false
@@ -29,6 +32,9 @@ d3.queue()
 
     var chart1 = new Chart();
     chart1.update();
+
+    var pieChart1 = new PieChart();
+    pieChart1.update();
 
     d3.select('#filter-all-label')
       .classed('active', true);
@@ -93,6 +99,39 @@ d3.queue()
         }                
       })
     });
+
+
+function PieChart() {
+
+  var chart = this;
+
+  //SVG
+
+  chart.svg = d3.select('#pie-chart')
+                .append('svg')
+                  .attr('width', pieWidth)
+                  .attr('height', pieHeight)
+                .append("g")
+                  .attr("transform", "translate(" + pieWidth / 2 + "," + pieHeight / 2 + ")");
+  
+  // ARC
+
+  chart.arc = d3.arc()
+              .outerRadius(radius - 10)
+              .innerRadius(0);
+  
+
+  // CALCULATE ANGLES
+
+  chart.pie = d3.pie()
+                .value(function(d) { return d.value; });
+
+
+  //SET COLOR SCALE
+
+  chart.color = d3.scaleOrdinal(d3.schemeCategory10)
+                  ;            
+};
 
 
 function Chart() {
@@ -239,6 +278,31 @@ Chart.prototype.update = function() {
                                         });           
   };
 
+ 
   };        
+
+PieChart.prototype.update = function() {
+
+  var chart = this;
+  
+  // NEST AND ROLLUP DATA
+
+    var pieData = d3.nest()
+                    .key(function(d) {return d.cause;})
+                    .rollup(function(v) {return v.length;})
+                    .entries(data);  
+
+console.log(pieData);
+console.log(chart.pie(pieData))
+
+    var g = chart.svg.selectAll(".arc")
+               .data(chart.pie(pieData))
+               .enter().append("g")
+                 .attr("class", "arc");
+
+        g.append("path")
+          .attr("d", chart.arc)
+          .style("fill", function(d) { return chart.color(d.data.key); });         
+}
 
 
