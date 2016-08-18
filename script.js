@@ -33,8 +33,14 @@ d3.queue()
     var chart1 = new Chart();
     chart1.update();
 
-    var pieChart1 = new PieChart();
-    pieChart1.update();
+    var causePieChart = new PieChart("cause", "#cause-pie-chart");
+    causePieChart.update();
+
+    var statusPieChart = new PieChart("status", "#status-pie-chart");
+    statusPieChart.update();
+
+    var agePieChart = new PieChart("age", "#age-pie-chart");
+    agePieChart.update();    
 
     d3.select('#filter-all-label')
       .classed('active', true);
@@ -101,13 +107,15 @@ d3.queue()
     });
 
 
-function PieChart() {
+function PieChart(pieVar, selection) {
 
   var chart = this;
 
+  chart.pieVar = pieVar;
+
   //SVG
 
-  chart.svg = d3.select('#pie-chart')
+  chart.svg = d3.select(selection)
                 .append('svg')
                   .attr('width', pieWidth)
                   .attr('height', pieHeight)
@@ -284,16 +292,14 @@ Chart.prototype.update = function() {
 PieChart.prototype.update = function() {
 
   var chart = this;
+
   
   // NEST AND ROLLUP DATA
 
     var pieData = d3.nest()
-                    .key(function(d) {return d.cause;})
+                    .key(function(d) {return d[chart.pieVar];})
                     .rollup(function(v) {return v.length;})
                     .entries(data);  
-
-console.log(pieData);
-console.log(chart.pie(pieData))
 
     var g = chart.svg.selectAll(".arc")
                .data(chart.pie(pieData))
