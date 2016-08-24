@@ -61,7 +61,8 @@ d3.queue()
           d3.select('#filter-other-label')
             .classed('active', false);  
 
-          chart1.update();              
+          chart1.update(); 
+          causePieChart.update();             
         }
     });    
 
@@ -81,7 +82,8 @@ d3.queue()
           d3.select('#filter-other-label')
             .classed('active', false);   
 
-          chart1.update();              
+          chart1.update();   
+          causePieChart.update();           
         }
      });   
 
@@ -101,7 +103,8 @@ d3.queue()
           d3.select('#filter-other-label')
             .classed('active', true);   
 
-          chart1.update();              
+          chart1.update();     
+          causePieChart.update();         
         }                
       })
     });
@@ -132,7 +135,8 @@ function PieChart(pieVar, selection) {
   // CALCULATE ANGLES
 
   chart.pie = d3.pie()
-                .value(function(d) { return d.value; });
+                .value(function(d) { return d.value; })
+                .sort(null);
 
 
   //SET COLOR SCALE
@@ -296,10 +300,22 @@ PieChart.prototype.update = function() {
   
   // NEST AND ROLLUP DATA
 
+    txData = data.slice();
+
+    if (options.cause) {
+      txData = txData.filter(function (d) {
+        return d.cause === options.cause;
+      });
+    };
+
     var pieData = d3.nest()
                     .key(function(d) {return d[chart.pieVar];})
                     .rollup(function(v) {return v.length;})
-                    .entries(data);  
+                    .entries(txData);  
+    
+    chart.svg
+         .selectAll(".arc")
+         .remove();
 
     var g = chart.svg.selectAll(".arc")
                .data(chart.pie(pieData))
