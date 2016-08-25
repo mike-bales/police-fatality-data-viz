@@ -6,7 +6,8 @@ var data,
     years = [2013, 2014, 2015],
     pieWidth = 200,
     pieHeight = 200
-    radius = Math.min(pieWidth, pieHeight) / 2;
+    radius = Math.min(pieWidth, pieHeight) / 2
+    donutWidth = 45;
 
 var options = {
   cause: false
@@ -62,7 +63,9 @@ d3.queue()
             .classed('active', false);  
 
           chart1.update(); 
-          causePieChart.update();             
+          causePieChart.update();   
+          statusPieChart.update();  
+          agePieChart.update();        
         }
     });    
 
@@ -83,7 +86,9 @@ d3.queue()
             .classed('active', false);   
 
           chart1.update();   
-          causePieChart.update();           
+          causePieChart.update();   
+          statusPieChart.update();  
+          agePieChart.update();      
         }
      });   
 
@@ -104,7 +109,9 @@ d3.queue()
             .classed('active', true);   
 
           chart1.update();     
-          causePieChart.update();         
+          causePieChart.update();  
+          statusPieChart.update(); 
+          agePieChart.update();      
         }                
       })
     });
@@ -129,15 +136,20 @@ function PieChart(pieVar, selection) {
 
   chart.arc = d3.arc()
               .outerRadius(radius - 10)
-              .innerRadius(0);
+              .innerRadius(radius - donutWidth);
   
 
   // CALCULATE ANGLES
 
-  chart.pie = d3.pie()
-                .value(function(d) { return d.value; })
+  if(chart.pieVar === 'age') {
+          chart.pie = d3.pie()
+                .value(function(d) {return d.length;})
                 .sort(null);
-
+                } else {
+          chart.pie = d3.pie()
+                .value(function(d) {return d.value;})
+                .sort(null);
+                }; 
 
   //SET COLOR SCALE
 
@@ -308,11 +320,22 @@ PieChart.prototype.update = function() {
       });
     };
 
-    var pieData = d3.nest()
+    if (chart.pieVar === "age") { 
+        var ageBins = [20,30,40,50,60,110];
+
+        var histogram = d3.histogram()
+                          .value(function(d) { return d.age })
+                          .thresholds(ageBins);
+
+        var pieData = histogram(txData);
+    } else {
+
+        var pieData = d3.nest()
                     .key(function(d) {return d[chart.pieVar];})
                     .rollup(function(v) {return v.length;})
-                    .entries(txData);  
-    
+                    .entries(txData); 
+    }
+  
     chart.svg
          .selectAll(".arc")
          .remove();
@@ -322,9 +345,15 @@ PieChart.prototype.update = function() {
                .enter().append("g")
                  .attr("class", "arc");
 
+  if (chart.pieVar === "age") { 
         g.append("path")
           .attr("d", chart.arc)
-          .style("fill", function(d) { return chart.color(d.data.key); });         
+          .style("fill", function(d) { return chart.color(d.data.x1); });         
+  } else {
+        g.append("path")
+          .attr("d", chart.arc)
+          .style("fill", function(d) { return chart.color(d.data.key); });  
+  }
 }
 
 
