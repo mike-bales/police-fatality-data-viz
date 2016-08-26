@@ -1,13 +1,15 @@
 var data,
-    margin = { top: 10, right: 15, bottom: 30, left: 15 },
+    margin = { top: 20, right: 15, bottom: 20, left: 15 },
     cellSize = 3,
     width = (cellSize*365+365) - margin.left - margin.right,
-    height = 70 - margin.top - margin.bottom
+    height = 70 - margin.bottom
     years = [2013, 2014, 2015],
     pieWidth = 200,
     pieHeight = 200
     radius = Math.min(pieWidth, pieHeight) / 2
-    donutWidth = 45;
+    donutWidth = 45,
+    legendRectSize = 10,
+    legendSpacing = 4;
 
 var options = {
   cause: false
@@ -153,8 +155,8 @@ function PieChart(pieVar, selection) {
 
   //SET COLOR SCALE
 
-  chart.color = d3.scaleOrdinal(d3.schemeCategory10)
-                  ;            
+  chart.color = d3.scaleOrdinal(d3.schemeCategory10);
+
 };
 
 
@@ -171,7 +173,34 @@ function Chart() {
                   .attr("height", (height + margin.top + margin.bottom)*3)
                   //.style("background", "lightgrey")
                   .append('g')
-                  .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+                  .attr('transform', 'translate(' + margin.left + ', 0)');
+
+    chart.svg
+         .append('rect')
+         .attr('class', 'leo')
+         .attr("height", 7)
+         .attr("width", 7)
+         .attr("y",3);
+
+    chart.svg 
+         .append('text')
+         .attr('x','10')
+         .attr('y','12')
+         .text('Law Enforcement Officer (LEO)')     
+
+    chart.svg
+         .append('rect')
+         .attr('class', 'civilian')
+         .attr("height", 7)
+         .attr("width", 7)
+         .attr("x",230)
+         .attr("y",3);    
+
+    chart.svg 
+         .append('text')
+         .attr('x',241)
+         .attr('y','12')
+         .text('Civilian')            
 
     chart.x = [];
 
@@ -188,7 +217,7 @@ function Chart() {
 
     yearGroup = chart.svg.append("g")
      .attr("id", "_"+years[i])
-     .attr("transform", "translate(0," + ((height+(margin.top*2)) * (i+1)) + ")")
+     .attr("transform", "translate(0," + ((height+(margin.top)) * (i+1)) + ")")
 
     // AXES
 
@@ -256,8 +285,8 @@ Chart.prototype.update = function() {
                            .attr("class", function(d) { return "victim"+years[i]+" "+d.status})
                            .attr("x", function(d) { return chart.x[i](dateParser(d.deathDate))} )
                            .attr("y", function(d,i) { return -(i*cellSize)-(i+1)})
-                           .attr("height", 0)
-                           .attr("width", 0)
+                           .attr("height", cellSize)
+                           .attr("width", cellSize)
                            .attr("rx", .5)
                            .attr("ry", .5)
                            .on("mouseover", function(d) {    
@@ -293,13 +322,13 @@ Chart.prototype.update = function() {
                                        .attr("x", vicRect.attr("x")*1 + 2)
                                        .attr("y", vicRect.attr("y")*1 + 2);
                                      })
-                           .transition().duration(1500)
-                                        .delay( function (d, i) { return i*500 })
-                                        .each( function(){
-                                          d3.select(this)
-                                                .attr("height", cellSize)
-                                                .attr("width", cellSize)
-                                        });           
+                           // .transition().duration(1500)
+                           //              .delay( function (d, i) { return i*500 })
+                           //              .each( function(){
+                           //                d3.select(this)
+                           //                      .attr("height", cellSize)
+                           //                      .attr("width", cellSize)
+                           //             });           
   };
 
  
@@ -328,11 +357,12 @@ PieChart.prototype.update = function() {
                           .thresholds(ageBins);
 
         var pieData = histogram(txData);
+
     } else {
 
         var pieData = d3.nest()
                     .key(function(d) {return d[chart.pieVar];})
-                    .rollup(function(v) {return v.length;})
+                    .rollup(function(d) {return d.length;})
                     .entries(txData); 
     }
   
@@ -353,7 +383,32 @@ PieChart.prototype.update = function() {
         g.append("path")
           .attr("d", chart.arc)
           .style("fill", function(d) { return chart.color(d.data.key); });  
-  }
+  };
+
+         var legend = chart.svg.selectAll('.legend')                     // NEW
+          .data(chart.color.domain())                                   // NEW
+          .enter()                                                // NEW
+          .append('g')                                            // NEW
+          .attr('class', 'legend')                                // NEW
+          .attr('transform', function(d, i) {                     // NEW
+            var height = legendRectSize + legendSpacing;          // NEW
+            var offset =  height * chart.color.domain().length / 2;     // NEW
+            var horz = -2 * legendRectSize;                       // NEW
+            var vert = i * height - offset;                       // NEW
+            return 'translate(' + horz + ',' + vert + ')';        // NEW
+          });                                                     // NEW
+
+        legend.append('rect')                                     // NEW
+          .attr('width', legendRectSize)                          // NEW
+          .attr('height', legendRectSize)                         // NEW
+          .style('fill', chart.color)                                   // NEW
+          .style('stroke', chart.color);                                // NEW
+          
+        legend.append('text')                                     // NEW
+          .attr('x', legendRectSize + legendSpacing)              // NEW
+          .attr('y', legendRectSize - legendSpacing)              // NEW
+          .text(function(d) { return d; });                       // NEW
+
 }
 
 

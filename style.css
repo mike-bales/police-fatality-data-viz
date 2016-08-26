@@ -8,8 +8,12 @@
   padding: 1em 0 2em;
 }
 
+#pie-charts {
+  position: fixed;
+}
+
 #chart svg {
-  /*display: block;*/
+  display: block;
   margin: 0 auto;
   padding: 0;
 }
