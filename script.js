@@ -127,13 +127,20 @@ function PieChart(pieVar, selection) {
 
   //SVG
 
-  chart.svg = d3.select(selection)
+  svg = d3.select(selection)
                 .append('svg')
                   .attr('width', pieWidth)
-                  .attr('height', pieHeight)
+                  .attr('height', pieHeight);
+
+  chart.svg =  svg
                 .append("g")
                   .attr("transform", "translate(" + pieWidth / 2 + "," + pieHeight / 2 + ")");
   
+               svg 
+                .append('text')
+                .attr('y',12)
+                .text(chart.pieVar);
+
   // ARC
 
   chart.arc = d3.arc()
